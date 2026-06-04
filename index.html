@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SatoshiTrust AI - Bitcoin Wallet Reputation System</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        btc: '#F7931A',
+                        dark: '#0B0E14',
+                        card: '#151A23',
+                        border: '#2A3142'
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- HTML2PDF for Report Generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0B0E14; color: #E2E8F0; }
+        .glass { background: rgba(21, 26, 35, 0.7); backdrop-filter: blur(12px); border: 1px solid #2A3142; }
+        .gradient-text { background: linear-gradient(135deg, #F7931A 0%, #FFD700 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .score-circle { background: conic-gradient(#F7931A var(--score), #2A3142 0); border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative; }
+        .score-circle::before { content: ''; position: absolute; inset: 6px; background: #151A23; border-radius: 50%; }
+        .score-circle span { position: relative; z-index: 1; font-weight: 800; font-size: 1.5rem; }
+        .heatmap-grid { display: grid; grid-template-columns: repeat(52, 1fr); gap: 3px; }
+        .heatmap-cell { width: 100%; aspect-ratio: 1; border-radius: 2px; }
+        .hide { display: none !important; }
+        .fade-in { animation: fadeIn 0.5s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0B0E14; }
+        ::-webkit-scrollbar-thumb { background: #2A3142; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #F7931A; }
+    </style>
+</head>
+<body class="antialiased min-h-screen flex flex-col">
+
+    <!-- Navbar -->
+    <nav class="glass sticky top-0 z-50 border-b border-border">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center gap-3 cursor-pointer" onclick="showSection('home')">
+                    <i class="fa-solid fa-shield-halved text-btc text-2xl"></i>
+                    <span class="text-xl font-bold tracking-tight">Satoshi<span class="text-btc">Trust</span> AI</span>
+                </div>
+                
+                <!-- Real-Time BTC Data -->
+                <div class="hidden md:flex items-center gap-4 text-xs font-mono bg-card px-3 py-1.5 rounded-full border border-border">
+                    <span class="text-btc font-bold">BTC/USD</span>
+                    <span id="btcPrice">$67,432.50</span>
+                    <span class="text-green-400" id="btcChange">+2.4%</span>
+                    <span class="text-slate-500">|</span>
+                    <span class="text-slate-400">Vol: <span id="btcVol">$28.4B</span></span>
+                </div>
+
+                <div class="flex items-center gap-3">
+                    <button onclick="showSection('home')" class="text-sm text-slate-300 hover:text-white px-3 py-2">Home</button>
+                    <button onclick="showSection('dashboard')" class="text-sm text-slate-300 hover:text-white px-3 py-2">Dashboard</button>
+                    <button onclick="showSection('compare')" class="text-sm text-slate-300 hover:text-white px-3 py-2">Compare</button>
+                    <button onclick="showSection('bulk')" class="text-sm text-slate-300 hover:text-white px-3 py-2">Bulk</button>
+                    <button onclick="showSection('admin')" class="text-sm text-slate-300 hover:text-white px-3 py-2">Admin</button>
+                    <button onclick="toggleAuthModal()" class="bg-btc hover:bg-orange-600 text-white text-sm font-semibold px-4 py-2 rounded-lg transition">Login / Sign Up</button>
+                </div>
+            </div.
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT AREA -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+
+        <!-- ================= HOME SECTION ================= -->
+        <section id="home" class="fade-in">
+            <!-- Hero -->
+            <div class="text-center py-16 lg:py-24">
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-orange-500/10 border border-orange-500/20 text-btc text-sm font-medium mb-6">
+                    <i class="fa-solid fa-bolt"></i> Powered by OpenAI & Blockstream API
+                </div>                <h1 class="text-5xl lg:text-7xl font-extrabold tracking-tight mb-6">
+                    Verify Bitcoin Wallets with <br>
+                    <span class="gradient-text">Artificial Intelligence</span>
+                </h1>
+                <p class="text-lg text-slate-400 max-w-2xl mx-auto mb-10">
+                    SatoshiTrust AI analyzes on-chain history to determine the trustworthiness of any Bitcoin wallet. 
+                    Make safer decisions before sending or receiving Bitcoin.
+                </p>
+                
+                <!-- Step 2: Input -->
+                <div class="max-w-2xl mx-auto glass p-2 rounded-2xl flex flex-col sm:flex-row gap-2">
+                    <input type="text" id="walletInput" placeholder="Enter Bitcoin Address (e.g., bc1q...)" 
+                        class="flex-1 bg-transparent border-none outline-none text-white px-4 py-3 text-lg placeholder-slate-500 font-mono">
+                    <button onclick="analyzeWallet()" class="bg-btc hover:bg-orange-600 text-white font-bold px-8 py-3 rounded-xl transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-magnifying-glass"></i> Analyze Wallet
+                    </button>
+                </div>
+                <p id="errorMsg" class="text-red-400 text-sm mt-3 hidden"><i class="fa-solid fa-circle-exclamation"></i> Invalid Bitcoin address format.</p>
+            </div>
+
+            <!-- Features -->
+            <div class="grid md:grid-cols-3 gap-6 py-12">
+                <div class="glass p-6 rounded-2xl hover:border-btc/50 transition">
+                    <div class="w-12 h-12 bg-blue-500/10 rounded-lg flex items-center justify-center text-blue-400 mb-4"><i class="fa-solid fa-brain text-xl"></i></div>
+                    <h3 class="text-xl font-bold mb-2">AI Reputation Engine</h3>
+                    <p class="text-slate-400 text-sm">Scores wallets up to 100 based on Age (25pts), Transactions (20pts), Consistency (20pts), Volume (15pts), Network (10pts), and AI Confidence (10pts).</p>
+                </div>
+                <div class="glass p-6 rounded-2xl hover:border-btc/50 transition">
+                    <div class="w-12 h-12 bg-red-500/10 rounded-lg flex items-center justify-center text-red-400 mb-4"><i class="fa-solid fa-triangle-exclamation text-xl"></i></div>
+                    <h3 class="text-xl font-bold mb-2">Fraud Detection</h3>
+                    <p class="text-slate-400 text-sm">Identifies scam patterns, suspicious clusters, dormant wallets, and large volume spikes in real-time.</p>
+                </div>
+                <div class="glass p-6 rounded-2xl hover:border-btc/50 transition">
+                    <div class="w-12 h-12 bg-green-500/10 rounded-lg flex items-center justify-center text-green-400 mb-4"><i class="fa-solid fa-file-pdf text-xl"></i></div>
+                    <h3 class="text-xl font-bold mb-2">PDF Reports & Watchlists</h3>
+                    <p class="text-slate-400 text-sm">Generate comprehensive PDF reports, compare multiple wallets, and monitor saved addresses for risk changes.</p>
+                </div</div>
+
+            <!-- How it Works -->
+            <div class="py-12 border-t border-border mt-8">
+                <h2 class="text-3xl font-bold text-center mb-10">How It Works</h2>
+                <div class="grid md:grid-cols-4 gap-6 text-center">
+                    <div class="p-4">
+                        <div class="w-10 h-10 bg-btc rounded-full flex items-center justify-center text-white font-bold mx-auto mb-3">1</div>
+                        <h4 class="font-semibold">Enter Address</h4>
+                        <p class="text-sm text-slate-400 mt-1">Input any BTC address for validation.</p>
+                    </div>
+                    <div class="p-4">
+                        <div class="w-10 h-10 bg-btc rounded-full flex items-center justify-center text-white font-bold mx-auto mb-3">2</div>
+                        <h4 class="font-semibold">Fetch Data</h4>                        <p class="text-sm text-slate-400 mt-1">Blockstream/Mempool APIs pull on-chain history.</p>
+                    </div>
+                    <div class="p-4">
+                        <div class="w-10 h-10 bg-btc rounded-full flex items-center justify-center text-white font-bold mx-auto mb-3">3</div>
+                        <h4 class="font-semibold">AI Analysis</h4>
+                        <p class="text-sm text-slate-400 mt-1">Engine calculates risk, trust, and reputation.</p>
+                    </div>
+                    <div class="p-4">
+                        <div class="w-10 h-10 bg-btc rounded-full flex items-center justify-center text-white font-bold mx-auto mb-3">4</div>
+                        <h4 class="font-semibold">Get Insights</h4>
+                        <p class="text-sm text-slate-400 mt-1">View dashboard, charts, and download PDF.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= LOADING SECTION ================= -->
+        <section id="loading" class="hide flex flex-col items-center justify-center py-32">
+            <div class="w-16 h-16 border-4 border-btc/30 border-t-btc rounded-full animate-spin mb-6"></div>
+            <h3 class="text-xl font-semibold mb-2">AI is Analyzing On-Chain Data...</h3>
+            <p class="text-slate-400 text-sm">Querying Blockstream API & running Fraud Detection Engine</p>
+        </section>
+
+        <!-- ================= DASHBOARD SECTION ================= -->
+        <section id="dashboard" class="hide fade-in">
+            <div id="pdf-content">
+                <!-- Top Row: Score, Trust, Risk -->
+                <div class="grid lg:grid-cols-3 gap-6 mb-6">
+                    <!-- Reputation Score -->
+                    <div class="glass p-6 rounded-2xl flex flex-col items-center justify-center text-center">
+                        <h3 class="text-slate-400 text-sm font-medium mb-4">Reputation Score</h3>
+                        <div class="score-circle w-32 h-32 mb-4" style="--score: 342deg;">
+                            <span class="text-btc text-3xl">95</span>
+                        </div>
+                        <span class="text-green-400 font-bold text-lg">Excellent</span>
+                        <p class="text-xs text-slate-500 mt-2">Max Score: 100</p>
+                    </div>
+
+                    <!-- Trust Level -->
+                    <div class="glass p-6 rounded-2xl flex flex-col items-center justify-center text-center">
+                        <h3 class="text-slate-400 text-sm font-medium mb-4">Trust Level</h3>
+                        <div class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-yellow-500/10 border border-yellow-500/30 text-yellow-400 font-bold text-xl mb-4">
+                            <i class="fa-solid fa-crown"></i> Gold Trust
+                        </div>
+                        <div class="w-full bg-slate-800 rounded-full h-2 mt-2">
+                            <div class="bg-yellow-400 h-2 rounded-full" style="width: 100%"></div>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-3">Wallet is highly verified and safe for transactions.</p>
+                    </div>
+                    <!-- Risk Analysis -->
+                    <div class="glass p-6 rounded-2xl">
+                        <h3 class="text-slate-400 text-sm font-medium mb-4">Risk Analysis</h3>
+                        <div class="flex items-center justify-between mb-4">
+                            <span class="text-3xl font-bold text-green-400">15<span class="text-sm text-slate-500 font-normal">/100</span></span>
+                            <span class="px-3 py-1 rounded-full bg-green-500/10 text-green-400 text-xs font-bold border border-green-500/20">Low Risk</span>
+                        </div>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex items-center gap-2 text-green-400"><i class="fa-solid fa-check-circle"></i> No Dormant Activity</div>
+                            <div class="flex items-center gap-2 text-green-400"><i class="fa-solid fa-check-circle"></i> No Scam Patterns Detected</div>
+                            <div class="flex items-center gap-2 text-green-400"><i class="fa-solid fa-check-circle"></i> No Suspicious Clusters</div>
+                            <div class="flex items-center gap-2 text-yellow-400"><i class="fa-solid fa-triangle-exclamation"></i> Minor Volume Spike (Normal)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Wallet Statistics -->
+                <div class="glass p-6 rounded-2xl mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-bold">Wallet Statistics</h3>
+                        <span class="font-mono text-btc text-sm" id="displayAddress">bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh</span>
+                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                        <div class="bg-dark p-4 rounded-xl border border-border">
+                            <p class="text-xs text-slate-400 mb-1">Wallet Age</p>
+                            <p class="text-xl font-bold text-white">4.6 Years</p>
+                        </div>
+                        <div class="bg-dark p-4 rounded-xl border border-border">
+                            <p class="text-xs text-slate-400 mb-1">Total Transactions</p>
+                            <p class="text-xl font-bold text-white">1,247</p>
+                        </div>
+                        <div class="bg-dark p-4 rounded-xl border border-border">
+                            <p class="text-xs text-slate-400 mb-1">BTC Received</p>
+                            <p class="text-xl font-bold text-green-400">14.3 BTC</p>
+                        </div>
+                        <div class="bg-dark p-4 rounded-xl border border-border">
+                            <p class="text-xs text-slate-400 mb-1">BTC Sent</p>
+                            <p class="text-xl font-bold text-red-400">12.8 BTC</p>
+                        </div>
+                        <div class="bg-dark p-4 rounded-xl border border-border">
+                            <p class="text-xs text-slate-400 mb-1">Total Volume</p>
+                            <p class="text-xl font-bold text-btc">27.1 BTC</p>
+                        </div>
+                        <div class="bg-dark p-4 rounded-xl border border-border">
+                            <p class="text-xs text-slate-400 mb-1">Active Days</p>
+                            <p class="text-xl font-bold text-white">892 Days</p>
+                        </div>
+                        <div class="bg-dark p-4 rounded-xl border border-border">
+                            <p class="text-xs text-slate-400 mb-1">Tx Frequency</p>
+                            <p class="text-xl font-bold text-white">3.4 / Week</p>                        </div>
+                        <div class="bg-dark p-4 rounded-xl border border-border">
+                            <p class="text-xs text-slate-400 mb-1">Largest Transaction</p>
+                            <p class="text-xl font-bold text-white">2.5 BTC</p>
+                        </div>
+                        <div class="bg-dark p-4 rounded-xl border border-border">
+                            <p class="text-xs text-slate-400 mb-1">Network Activity</p>
+                            <p class="text-xl font-bold text-blue-400">85/100</p>
+                        </div>
+                        <div class="bg-dark p-4 rounded-xl border border-border flex items-center justify-center gap-2 cursor-pointer hover:bg-slate-800 transition" onclick="toggleWatchlist()">
+                            <i class="fa-regular fa-bookmark text-btc"></i>
+                            <span class="text-sm font-medium text-btc">Add to Watchlist</span>
+                       .
+                        <div class="bg-dark p-4 rounded-xl border border-border flex items-center justify-center gap-2 cursor-pointer hover:bg-slate-800 transition" onclick="addToFavorites()">
+                            <i class="fa-regular fa-star text-yellow-400"></i>
+                            <span class="text-sm font-medium text-yellow-400">Add to Favorites</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Section -->
+                <div class="grid lg:grid-cols-2 gap-6 mb-6">
+                    <div class="glass p-6 rounded-2xl">
+                        <h4 class="text-sm font-semibold text-slate-400 mb-4">Transaction Timeline</h4>
+                        <canvas id="timelineChart" height="200"></canvas>
+                    </div>
+                    <div class="glass p-6 rounded-2xl">
+                        <h4 class="text-sm font-semibold text-slate-400 mb-4">BTC Flow (In vs Out)</h4>
+                        <canvas id="flowChart" height="200"></canvas>
+                    </div>
+                    <div class="glass p-6 rounded-2xl">
+                        <h4 class="text-sm font-semibold text-slate-400 mb-4">Activity Heatmap (Last 52 Weeks)</h4>
+                        <div id="heatmap" class="heatmap-grid overflow-x-auto pb-2"></div>
+                    </div>
+                    <div class="glass p-6 rounded-2xl">
+                        <h4 class="text-sm font-semibold text-slate-400 mb-4">Reputation Timeline</h4>
+                        <canvas id="reputationChart" height="200"></canvas>
+                    </div>
+                </div>
+
+                <!-- AI Insights -->
+                <div class="glass p-6 rounded-2xl mb-6 border-l-4 border-l-btc">
+                    <div class="flex items-center gap-3 mb-4">
+                        <i class="fa-solid fa-robot text-btc text-2xl"></i>
+                        <h3 class="text-lg font-bold">AI Insights & Recommendations</h3>
+                    </div>
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="text-green-400 font-semibold mb-2 text-sm uppercase tracking-wider">Strengths</h4>
+                            <ul class="text-sm text-slate-300 space-y-2 list-disc list-inside">                                <li>Long-term consistent activity (4.6 years).</li>
+                                <li>No interaction with known scam addresses.</li>
+                                <li>Healthy ratio of incoming to outgoing volume.</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="text-red-400 font-semibold mb-2 text-sm uppercase tracking-wider">Weaknesses / Flags</h4>
+                            <ul class="text-sm text-slate-300 space-y-2 list-disc list-inside">
+                                <li>Minor volume spike detected 14 days ago (within normal parameters).</li>
+                                <li>Occasional interaction with unverified mixing services (low risk).</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="mt-4 p-4 bg-btc/5 rounded-xl border border-btc/20">
+                        <p class="text-sm text-slate-200"><span class="font-bold text-btc">AI Recommendation:</span> This wallet demonstrates long-term activity and low-risk behavior. It is <strong class="text-green-400">SAFE TO TRANSACT</strong> and suitable for receiving payments. Monitor future activity for any sudden changes in behavior.</p>
+                    </div>
+                </div>
+            </div> <!-- End PDF Content -->
+
+            <!-- Action Buttons -->
+            <div class="flex flex-wrap gap-4 mb-8">
+                <button onclick="generatePDF()" class="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-xl font-semibold flex items-center gap-2 transition">
+                    <i class="fa-solid fa-file-pdf"></i> Download PDF Report
+                </button>
+                <button onclick="showSection('compare')" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-semibold flex items-center gap-2 transition">
+                    <i class="fa-solid fa-code-compare"></i> Compare with Other Wallets
+                </button>
+            </div>
+        </section>
+
+        <!-- ================= COMPARISON SECTION ================= -->
+        <section id="compare" class="hide fade-in">
+            <h2 class="text-3xl font-bold mb-6">Wallet Comparison</h2>
+            <div class="grid md:grid-cols-3 gap-4 mb-6">
+                <input type="text" placeholder="Wallet A Address" class="bg-card border border-border rounded-lg p-3 text-sm font-mono" value="bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh">
+                <input type="text" placeholder="Wallet B Address" class="bg-card border border-border rounded-lg p-3 text-sm font-mono" value="1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa">
+                <input type="text" placeholder="Wallet C Address" class="bg-card border border-border rounded-lg p-3 text-sm font-mono" value="3J98t1WpEZ73CNmQviecrnyiWrnqRhWNLy">
+            </div>
+            <button class="bg-btc text-white px-6 py-2 rounded-lg font-semibold mb-6" onclick="alert('Comparison updated!')">Compare Wallets</button>
+
+            <div class="glass rounded-2xl overflow-hidden">
+                <table class="w-full text-left text-sm">
+                    <thead class="bg-dark text-slate-400 border-b border-border">
+                        <tr>
+                            <th class="p-4">Metric</th>
+                            <th class="p-4 text-btc">Wallet A (Most Trusted 🏆)</th>
+                            <th class="p-4">Wallet B</th>
+                            <th class="p-4">Wallet C</th>
+                        </tr>
+                    </thead>                    <tbody class="divide-y divide-border">
+                        <tr><td class="p-4 font-medium">Trust Score</td><td class="p-4 text-green-400 font-bold">95 (Gold)</td><td class="p-4 text-yellow-400">65 (Medium)</td><td class="p-4 text-red-400">35 (High Risk)</td></tr>
+                        <tr><td class="p-4 font-medium">Risk Score</td><td class="p-4 text-green-400">15/100</td><td class="p-4 text-yellow-400">45/100</td><td class="p-4 text-red-400">85/100</td></tr>
+                        <tr><td class="p-4 font-medium">Wallet Age</td><td class="p-4">4.6 Years</td><td class="p-4">1.2 Years</td><td class="p-4">0.3 Years</td></tr>
+                        <tr><td class="p-4 font-medium">Total Volume</td><td class="p-4">27.1 BTC</td><td class="p-4">5.4 BTC</td><td class="p-4">112.0 BTC</td></tr>
+                        <tr><td class="p-4 font-medium">Transactions</td><td class="p-4">1,247</td><td class="p-4">89</td><td class="p-4">12</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ================= BULK ANALYSIS SECTION ================= -->
+        <section id="bulk" class="hide fade-in">
+            <h2 class="text-3xl font-bold mb-6">Bulk Wallet Analysis</h2>
+            <div class="glass p-8 rounded-2xl border-dashed border-2 border-border flex flex-col items-center justify-center text-center">
+                <i class="fa-solid fa-file-csv text-4xl text-slate-500 mb-4"></i>
+                <h3 class="text-xl font-semibold mb-2">Upload CSV File</h3>
+                <p class="text-slate-400 text-sm mb-6 max-w-md">Upload a CSV containing a list of Bitcoin addresses to analyze multiple wallets simultaneously. Export results as CSV, Excel, or PDF.</p>
+                <input type="file" accept=".csv" class="hidden" id="csvInput">
+                <button onclick="document.getElementById('csvInput').click()" class="bg-btc hover:bg-orange-600 text-white px-6 py-3 rounded-xl font-semibold transition mb-4">Select CSV File</button>
+                <div class="flex gap-3">
+                    <button class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm transition"><i class="fa-solid fa-file-csv"></i> Export CSV</button>
+                    <button class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm transition"><i class="fa-solid fa-file-excel"></i> Export Excel</button>
+                    <button class="bg-slate-700 hover:bg-slate-600 text-white px-4 py-2 rounded-lg text-sm transition"><i class="fa-solid fa-file-pdf"></i> Export PDF</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= HISTORY & WATCHLIST SECTION ================= -->
+        <section id="history" class="hide fade-in">
+            <div class="flex gap-4 mb-6 border-b border-border">
+                <button class="pb-3 border-b-2 border-btc text-btc font-semibold">Search History</button>
+                <button class="pb-3 border-b-2 border-transparent text-slate-400 hover:text-white">Watchlist</button>
+                <button class="pb-3 border-b-2 border-transparent text-slate-400 hover:text-white">Favorites</button>
+                <button class="pb-3 border-b-2 border-transparent text-slate-400 hover:text-white">Saved Reports</button>
+            </div>
+            
+            <div class="flex gap-4 mb-6">
+                <input type="text" placeholder="Filter by Wallet Address..." class="bg-card border border-border rounded-lg p-2 text-sm flex-1">
+                <select class="bg-card border border-border rounded-lg p-2 text-sm"><option>All Trust Levels</option><option>Gold</option><option>Verified</option></select>
+                <select class="bg-card border border-border rounded-lg p-2 text-sm"><option>All Risk Levels</option><option>Low</option><option>Medium</option><option>High</option></select>
+            </div>
+
+            <div class="glass rounded-2xl overflow-hidden">
+                <table class="w-full text-left text-sm">
+                    <thead class="bg-dark text-slate-400 border-b border-border">
+                        <tr>
+                            <th class="p-4">Date</th>
+                            <th class="p-4">Wallet Address</th>
+                            <th class="p-4">Trust Level</th>                            <th class="p-4">Risk Score</th>
+                            <th class="p-4">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-border">
+                        <tr>
+                            <td class="p-4 text-slate-400">2024-05-15</td>
+                            <td class="p-4 font-mono text-btc">bc1qxy2kg...0wlh</td>
+                            <td class="p-4"><span class="px-2 py-1 rounded bg-yellow-500/10 text-yellow-400 text-xs">Gold Trust</span></td>
+                            <td class="p-4 text-green-400">15/100</td>
+                            <td class="p-4"><button class="text-blue-400 hover:underline">View</button></td>
+                        </tr>
+                        <tr>
+                            <td class="p-4 text-slate-400">2024-05-14</td>
+                            <td class="p-4 font-mono text-btc">1BvBMSEY...Wv7</td>
+                            <td class="p-4"><span class="px-2 py-1 rounded bg-red-500/10 text-red-400 text-xs">High Risk</span></td>
+                            <td class="p-4 text-red-400">85/100</td>
+                            <td class="p-4"><button class="text-blue-400 hover:underline">View</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- ================= ADMIN DASHBOARD SECTION ================= -->
+        <section id="admin" class="hide fade-in">
+            <h2 class="text-3xl font-bold mb-6">Admin Dashboard</h2>
+            <div class="grid md:grid-cols-4 gap-4 mb-8">
+                <div class="glass p-4 rounded-xl border-l-4 border-blue-500">
+                    <p class="text-slate-400 text-xs">Total Users</p>
+                    <p class="text-2xl font-bold">1,248</p>
+                </div>
+                <div class="glass p-4 rounded-xl border-l-4 border-btc">
+                    <p class="text-slate-400 text-xs">Total Analyses</p>
+                    <p class="text-2xl font-bold">45,902</p>
+                </div>
+                <div class="glass p-4 rounded-xl border-l-4 border-green-500">
+                    <p class="text-slate-400 text-xs">System Health</p>
+                    <p class="text-2xl font-bold text-green-400">99.9%</p>
+                </div>
+                <div class="glass p-4 rounded-xl border-l-4 border-purple-500">
+                    <p class="text-slate-400 text-xs">API Usage (Blockstream)</p>
+                    <p class="text-2xl font-bold">12.4K / 50K</p>
+                </div>
+            </div>
+            
+            <div class="glass p-6 rounded-2xl">
+                <h3 class="font-bold mb-4">Recent System Activity</h3>
+                <div class="space-y-3 text-sm">
+                    <div class="flex justify-between border-b border-border pb-2">                        <span><i class="fa-solid fa-user text-blue-400"></i> New user registered: user_882@proton.me</span>
+                        <span class="text-slate-500">2 mins ago</span>
+                    </div>
+                    <div class="flex justify-between border-b border-border pb-2">
+                        <span><i class="fa-solid fa-triangle-exclamation text-red-400"></i> Fraud Engine flagged wallet: 3J98t1W...</span>
+                        <span class="text-slate-500">15 mins ago</span>
+                    </div>
+                    <div class="flex justify-between border-b border-border pb-2">
+                        <span><i class="fa-solid fa-file-pdf text-btc"></i> PDF Report generated for bc1qxy2...</span>
+                        <span class="text-slate-500">1 hour ago</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-8 glass p-6 rounded-2xl">
+                <h3 class="font-bold mb-4">Tech Stack & Database Schema (Reference)</h3>
+                <div class="grid md:grid-cols-2 gap-6 text-sm text-slate-400">
+                    <div>
+                        <p class="text-white font-semibold mb-2">Frontend:</p>
+                        <p>Next.js, React, TypeScript, Tailwind CSS, ShadCN UI, Framer Motion, Recharts</p>
+                        <p class="text-white font-semibold mt-4 mb-2">Backend:</p>
+                        <p>Node.js, Express.js, PostgreSQL, Clerk (Auth), OpenAI API</p>
+                    </div>
+                    <div>
+                        <p class="text-white font-semibold mb-2">Database Tables:</p>
+                        <p>Users, Wallets, Analyses, Watchlists, Favorites, Reports, Notifications, Chat History</p>
+                        <p class="text-white font-semibold mt-4 mb-2">APIs:</p>
+                        <p>Analyze Wallet, Wallet Comparison, Watchlist, Report, Chatbot, Authentication, Blockstream, Mempool</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ================= AI CHATBOT WIDGET ================= -->
+    <div class="fixed bottom-6 right-6 z-50">
+        <div id="chatWindow" class="hide glass w-80 md:w-96 rounded-2xl border border-border shadow-2xl mb-4 flex flex-col overflow-hidden" style="height: 400px;">
+            <div class="bg-btc p-4 flex justify-between items-center">
+                <div class="flex items-center gap-2 text-white font-semibold">
+                    <i class="fa-solid fa-robot"></i> SatoshiTrust AI
+                </div>
+                <button onclick="toggleChat()" class="text-white hover:text-slate-200"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div id="chatMessages" class="flex-1 p-4 overflow-y-auto space-y-3 text-sm">
+                <div class="bg-slate-800 p-3 rounded-lg rounded-tl-none max-w-[85%]">
+                    Hello! Ask me anything about this wallet. Example: "Is this wallet safe?" or "Why is the score 95?"
+                </div>
+            </div>
+            <div class="p-3 border-t border-border flex gap-2">                <input type="text" id="chatInput" placeholder="Ask AI..." class="flex-1 bg-dark border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-btc" onkeypress="if(event.key==='Enter') sendChat()">
+                <button onclick="sendChat()" class="bg-btc text-white px-3 py-2 rounded-lg hover:bg-orange-600"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+        <button onclick="toggleChat()" class="bg-btc hover:bg-orange-600 text-white w-14 h-14 rounded-full shadow-lg flex items-center justify-center text-2xl transition transform hover:scale-110">
+            <i class="fa-solid fa-comment-dots"></i>
+        </button>
+    </div>
+
+    <!-- ================= AUTH MODAL ================= -->
+    <div id="authModal" class="hide fixed inset-0 z-[60] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="glass w-full max-w-md p-8 rounded-2xl relative">
+            <button onclick="toggleAuthModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+            <h2 class="text-2xl font-bold mb-6 text-center">Welcome to SatoshiTrust</h2>
+            <div class="flex gap-4 mb-6 border-b border-border">
+                <button class="flex-1 pb-2 border-b-2 border-btc text-btc font-semibold">Login</button>
+                <button class="flex-1 pb-2 border-b-2 border-transparent text-slate-400">Sign Up</button>
+            </div>
+            <form class="space-y-4" onsubmit="event.preventDefault(); toggleAuthModal(); alert('Logged in successfully!');">
+                <div>
+                    <label class="text-sm text-slate-400 block mb-1">Email</label>
+                    <input type="email" class="w-full bg-dark border border-border rounded-lg p-3 text-white outline-none focus:border-btc" required>
+                </div>
+                <div>
+                    <label class="text-sm text-slate-400 block mb-1">Password</label>
+                    <input type="password" class="w-full bg-dark border border-border rounded-lg p-3 text-white outline-none focus:border-btc" required>
+                </div>
+                <button type="submit" class="w-full bg-btc hover:bg-orange-600 text-white font-bold py-3 rounded-lg transition">Login</button>
+            </form>
+            <p class="text-center text-xs text-slate-500 mt-4">Secured by Clerk Authentication</p>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="border-t border-border mt-12 py-8 text-center text-slate-500 text-sm">
+        <p>&copy; 2024 SatoshiTrust AI. Decentralized AI-powered Bitcoin reputation system.</p>
+        <p class="mt-2">Powered by Blockstream API, Mempool API, OpenAI, and PostgreSQL.</p>
+    </footer>
+
+    <!-- ================= JAVASCRIPT LOGIC ================= -->
+    <script>
+        // --- Navigation ---
+        function showSection(sectionId) {
+            document.querySelectorAll('main > section').forEach(sec => sec.classList.add('hide'));
+            document.getElementById(sectionId).classList.remove('hide');
+            window.scrollTo(0, 0);
+        }
+
+        // --- Wallet Analysis Simulation ---
+        function analyzeWallet() {            const input = document.getElementById('walletInput').value.trim();
+            const errorMsg = document.getElementById('errorMsg');
+            
+            // Basic BTC address validation regex
+            const btcRegex = /^(1|3|bc1)[a-zA-HJ-NP-Z0-9]{25,62}$/;
+            
+            if (!btcRegex.test(input)) {
+                errorMsg.classList.remove('hidden');
+                return;
+            }
+            
+            errorMsg.classList.add('hidden');
+            document.getElementById('displayAddress').textContent = input;
+            
+            // Show loading
+            showSection('loading');
+            
+            // Simulate API delay
+            setTimeout(() => {
+                showSection('dashboard');
+                initCharts();
+                generateHeatmap();
+            }, 2500);
+        }
+
+        // --- Chart.js Initialization ---
+        let chartsInitialized = false;
+        function initCharts() {
+            if (chartsInitialized) return;
+            chartsInitialized = true;
+
+            // 1. Transaction Timeline
+            new Chart(document.getElementById('timelineChart'), {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Transactions',
+                        data: [12, 19, 15, 25, 22, 30],
+                        borderColor: '#F7931A',
+                        backgroundColor: 'rgba(247, 147, 26, 0.1)',
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { grid: { color: '#2A3142' } }, x: { grid: { display: false } } } }
+            });
+
+            // 2. BTC Flow Chart
+            new Chart(document.getElementById('flowChart'), {                type: 'bar',
+                data: {
+                    labels: ['Received', 'Sent'],
+                    datasets: [{
+                        label: 'BTC',
+                        data: [14.3, 12.8],
+                        backgroundColor: ['#22c55e', '#ef4444'],
+                        borderRadius: 6
+                    }]
+                },
+                options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { grid: { color: '#2A3142' } }, x: { grid: { display: false } } } }
+            });
+
+            // 3. Reputation Timeline
+            new Chart(document.getElementById('reputationChart'), {
+                type: 'line',
+                data: {
+                    labels: ['2020', '2021', '2022', '2023', '2024'],
+                    datasets: [{
+                        label: 'Reputation Score',
+                        data: [60, 75, 80, 88, 95],
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { min: 0, max: 100, grid: { color: '#2A3142' } }, x: { grid: { display: false } } } }
+            });
+        }
+
+        // --- Heatmap Generation ---
+        function generateHeatmap() {
+            const container = document.getElementById('heatmap');
+            container.innerHTML = '';
+            const levels = ['bg-slate-800', 'bg-green-900', 'bg-green-700', 'bg-green-500', 'bg-green-400'];
+            for (let i = 0; i < 364; i++) { // 52 weeks * 7 days
+                const div = document.createElement('div');
+                div.className = `heatmap-cell ${levels[Math.floor(Math.random() * levels.length)]}`;
+                div.title = `Activity level`;
+                container.appendChild(div);
+            }
+        }
+
+        // --- PDF Generator ---
+        function generatePDF() {
+            const element = document.getElementById('pdf-content');
+            const opt = {
+                margin: 0.5,
+                filename: 'SatoshiTrust_Wallet_Report.pdf',                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, backgroundColor: '#151A23' },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save();
+        }
+
+        // --- Chatbot Logic ---
+        function toggleChat() {
+            document.getElementById('chatWindow').classList.toggle('hide');
+        }
+
+        function sendChat() {
+            const input = document.getElementById('chatInput');
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            const chatBox = document.getElementById('chatMessages');
+            
+            // User message
+            chatBox.innerHTML += `<div class="bg-btc/20 border border-btc/30 p-3 rounded-lg rounded-tr-none max-w-[85%] ml-auto text-right">${msg}</div>`;
+            input.value = '';
+
+            // AI Mock Response
+            setTimeout(() => {
+                let response = "Based on the on-chain analysis, this wallet has a Gold Trust level (95/100). It shows long-term consistent activity with no scam patterns. It is safe to transact.";
+                if (msg.toLowerCase().includes('risk') || msg.toLowerCase().includes('low')) {
+                    response = "The risk score is 15/100 (Low Risk). The only minor flag is a historical volume spike, which is within normal parameters for a wallet of this size.";
+                } else if (msg.toLowerCase().includes('why') || msg.toLowerCase().includes('score')) {
+                    response = "The score is 95 because: Wallet Age (25/25), Transaction Count (20/20), Consistency (20/20), Volume (15/15), Network Activity (10/10), and AI Confidence (5/10 due to minor mixing service interaction).";
+                }
+
+                chatBox.innerHTML += `<div class="bg-slate-800 p-3 rounded-lg rounded-tl-none max-w-[85%]">${response}</div>`;
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }, 1000);
+        }
+
+        // --- Auth Modal ---
+        function toggleAuthModal() {
+            document.getElementById('authModal').classList.toggle('hide');
+        }
+
+        // --- Mock Features ---
+        function toggleWatchlist() { alert('Wallet added to Watchlist! You will be notified of risk changes.'); }
+        function addToFavorites() { alert('Wallet added to Favorites for quick access.'); }
+
+        // --- Real-time BTC Price Mock ---
+        setInterval(() => {
+            const price = 67432.50 + (Math.random() * 100 - 50);
+            document.getElementById('btcPrice').textContent = '$' + price.toFixed(2);        }, 5000);
+
+        // Initialize
+        showSection('home');
+    </script>
+</body>
+</html>
