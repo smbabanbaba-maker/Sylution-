@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StitchLink</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        body { background: #f5f3ff; min-height: 100vh; }
+        .screen { display: none; padding-bottom: 80px; }
+        .screen.active { display: block; }
+        
+        /* Login */
+        .login { background: linear-gradient(135deg, #6C3CE1, #8B5CF6); min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 30px; }
+        .logo { width: 70px; height: 70px; background: white; border-radius: 16px; display: flex; align-items: center; justify-content: center; margin-bottom: 20px; font-size: 32px; color: #6C3CE1; }
+        .login-card { background: white; border-radius: 20px; padding: 30px 20px; width: 100%; max-width: 350px; }
+        .login-card h2 { margin-bottom: 5px; color: #1a1a2e; }
+        .login-card p { color: #666; font-size: 13px; margin-bottom: 25px; }
+        .input { width: 100%; padding: 14px; border: 2px solid #e5e7eb; border-radius: 12px; margin-bottom: 15px; font-size: 14px; outline: none; }
+        .input:focus { border-color: #6C3CE1; }
+        .btn { width: 100%; padding: 15px; background: #6C3CE1; color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 10px; }
+        .btn:active { transform: scale(0.98); }
+        
+        /* Header */
+        .header { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { font-size: 22px; color: #1a1a2e; }
+        .notif { width: 40px; height: 40px; background: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        
+        /* Search */
+        .search-box { margin: 0 20px 20px; padding: 12px 16px; background: white; border-radius: 12px; display: flex; align-items: center; gap: 10px; }
+        .search-box input { border: none; outline: none; flex: 1; font-size: 14px; }
+        
+        /* Banner */
+        .banner { margin: 0 20px 20px; background: linear-gradient(135deg, #2D1B69, #4C1D95); border-radius: 20px; padding: 25px; color: white; }
+        .banner h2 { font-size: 20px; margin-bottom: 8px; }
+        .banner p { font-size: 13px; opacity: 0.9; margin-bottom: 15px; }
+        .banner-btn { background: white; color: #6C3CE1; padding: 10px 20px; border: none; border-radius: 20px; font-weight: 600; cursor: pointer; }
+        
+        /* Features */
+        .features { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 0 20px; margin-bottom: 25px; }
+        .feature { text-align: center; }
+        .feature-icon { width: 50px; height: 50px; background: white; border-radius: 12px; margin: 0 auto 6px; display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .feature-label { font-size: 9px; color: #666; }
+        
+        /* Tailors */
+        .section-title { padding: 0 20px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .section-title h3 { font-size: 17px; }
+        .section-title a { color: #6C3CE1; font-size: 12px; text-decoration: none; }
+        .tailors { display: flex; gap: 12px; padding: 0 20px; overflow-x: auto; }
+        .tailor { min-width: 180px; background: white; border-radius: 16px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }        .tailor-img { height: 120px; background: linear-gradient(135deg, #667eea, #764ba2); }
+        .tailor-body { padding: 12px; }
+        .tailor h4 { font-size: 14px; margin-bottom: 3px; }
+        .tailor p { font-size: 11px; color: #666; }
+        .rating { font-size: 12px; margin: 6px 0; }
+        .price { color: #6C3CE1; font-weight: 700; font-size: 13px; }
+        
+        /* Bottom Nav */
+        .bottom-nav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; background: white; display: flex; justify-content: space-around; padding: 10px 0 20px; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
+        .nav-item { flex: 1; text-align: center; cursor: pointer; }
+        .nav-item i { font-size: 20px; display: block; margin-bottom: 3px; color: #999; }
+        .nav-item span { font-size: 10px; color: #999; }
+        .nav-item.active i, .nav-item.active span { color: #6C3CE1; }
+        .nav-center { width: 50px; height: 50px; background: #6C3CE1; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-top: -20px; color: white; font-size: 22px; box-shadow: 0 4px 15px rgba(108,60,225,0.4); }
+        
+        /* Profile */
+        .profile-card { margin: 0 20px 15px; background: white; border-radius: 20px; padding: 25px; text-align: center; }
+        .avatar { width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); margin: 0 auto 12px; }
+        .profile-card h2 { margin-bottom: 4px; }
+        .profile-card p { color: #666; font-size: 13px; margin-bottom: 10px; }
+        .location { display: inline-block; background: #f3f0ff; padding: 6px 14px; border-radius: 15px; font-size: 12px; color: #6C3CE1; }
+        .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 15px 20px; }
+        .stat { background: white; padding: 15px; border-radius: 12px; text-align: center; }
+        .stat .num { font-size: 20px; font-weight: 700; color: #6C3CE1; }
+        .stat .label { font-size: 11px; color: #666; margin-top: 3px; }
+        .menu { margin: 0 20px; background: white; border-radius: 16px; overflow: hidden; }
+        .menu-item { padding: 16px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #f3f4f6; cursor: pointer; }
+        .menu-item:last-child { border-bottom: none; }
+        .menu-icon { width: 40px; height: 40px; background: #f3f0ff; border-radius: 10px; display: flex; align-items: center; justify-content: center; }
+        .menu-info { flex: 1; }
+        .menu-info h4 { font-size: 14px; margin-bottom: 2px; }
+        .menu-info p { font-size: 11px; color: #666; }
+        
+        /* Orders */
+        .order-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; padding: 0 20px; margin-bottom: 15px; }
+        .order-stat { background: white; padding: 12px 8px; border-radius: 12px; text-align: center; }
+        .order-stat .num { font-size: 18px; font-weight: 700; color: #6C3CE1; }
+        .order-stat .label { font-size: 10px; color: #666; }
+        .order-card { margin: 0 20px 12px; background: white; border-radius: 16px; padding: 15px; }
+        .order-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .order-header h4 { font-size: 15px; }
+        .status { padding: 5px 12px; border-radius: 15px; font-size: 11px; font-weight: 600; }
+        .status.active { background: #fef3c7; color: #d97706; }
+        .status.done { background: #d1fae5; color: #059669; }
+        .order-meta { font-size: 12px; color: #666; margin-bottom: 12px; }
+        .tracking { display: flex; justify-content: space-between; margin-bottom: 12px; }
+        .track-step { text-align: center; flex: 1; }
+        .track-dot { width: 28px; height: 28px; border-radius: 50%; background: #6C3CE1; color: white; display: flex; align-items: center; justify-content: center; margin: 0 auto 5px; font-size: 11px; }
+        .track-step label { font-size: 9px; display: block; }
+        .order-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 12px; border-top: 1px solid #f3f4f6; }        .price-big { font-size: 18px; font-weight: 700; }
+        
+        /* Messages */
+        .conv { margin: 0 20px 10px; background: white; border-radius: 16px; padding: 14px; display: flex; align-items: center; gap: 12px; }
+        .conv-avatar { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); }
+        .conv-info { flex: 1; }
+        .conv-info h4 { font-size: 14px; margin-bottom: 3px; }
+        .conv-info p { font-size: 12px; color: #666; }
+        .conv-time { font-size: 11px; color: #999; }
+        .badge { background: #6C3CE1; color: white; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; margin-left: 8px; }
+        
+        /* Place Order */
+        .progress { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .step { text-align: center; flex: 1; }
+        .step-circle { width: 32px; height: 32px; border-radius: 50%; background: #e5e7eb; color: #999; display: flex; align-items: center; justify-content: center; margin: 0 auto 5px; font-size: 13px; font-weight: 600; }
+        .step.active .step-circle { background: #6C3CE1; color: white; }
+        .step label { font-size: 10px; color: #666; }
+        .form-content { padding: 0 20px; }
+        .upload-zone { border: 3px dashed #6C3CE1; border-radius: 16px; padding: 35px 20px; text-align: center; background: #f9f5ff; margin-bottom: 20px; }
+        .upload-icon { width: 56px; height: 56px; background: white; border-radius: 16px; margin: 0 auto 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; color: #6C3CE1; }
+        .textarea { width: 100%; padding: 14px; border: 2px solid #e5e7eb; border-radius: 12px; font-size: 13px; outline: none; min-height: 100px; resize: none; }
+        .fixed-btn { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; padding: 15px 20px; background: #f5f3ff; }
+        .fixed-btn button { width: 100%; padding: 16px; background: #6C3CE1; color: white; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; }
+        
+        .hidden { display: none !important; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .spinner { width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto; }
+    </style>
+</head>
+<body>
+
+<!-- Loading -->
+<div id="loading" style="position:fixed;top:0;left:0;right:0;bottom:0;background:#6C3CE1;display:flex;align-items:center;justify-content:center;z-index:9999;">
+    <div class="spinner"></div>
+</div>
+
+<!-- Login Screen -->
+<div class="screen active" id="loginScreen">
+    <div class="login">
+        <div class="logo">✂️</div>
+        <h1 style="color:white;font-size:28px;margin-bottom:5px;">StitchLink</h1>
+        <p style="color:rgba(255,255,255,0.8);margin-bottom:30px;">Quality Tailoring. Timely Delivery.</p>
+        <div class="login-card">
+            <h2>Welcome Back</h2>
+            <p>Sign in to continue</p>
+            <input type="email" class="input" placeholder="Email" id="email">
+            <input type="password" class="input" placeholder="Password" id="password">
+            <button class="btn" onclick="login()">Sign In</button>
+            <p style="text-align:center;margin-top:20px;font-size:13px;">Don't have an account? <a href="#" style="color:#6C3CE1;">Sign Up</a></p>
+        </div>    </div>
+</div>
+
+<!-- Home Screen -->
+<div class="screen" id="homeScreen">
+    <div class="header">
+        <div>
+            <p style="font-size:13px;color:#666;">Good morning 👋</p>
+            <h1>Find your perfect tailor</h1>
+        </div>
+        <div class="notif">🔔</div>
+    </div>
+    <div class="search-box">
+        <span>🔍</span>
+        <input type="text" placeholder="Search for tailors...">
+    </div>
+    <div class="banner">
+        <h2>Find trusted tailors near you</h2>
+        <p>Quality stitching, delivered on time.</p>
+        <button class="banner-btn" onclick="showToast('Exploring...')">Explore Tailors →</button>
+    </div>
+    <div class="features">
+        <div class="feature"><div class="feature-icon">✂️</div><div class="feature-label">Browse</div></div>
+        <div class="feature"><div class="feature-icon">📏</div><div class="feature-label">Measure</div></div>
+        <div class="feature"><div class="feature-icon">📋</div><div class="feature-label">Track</div></div>
+        <div class="feature"><div class="feature-icon">💬</div><div class="feature-label">Chat</div></div>
+        <div class="feature"><div class="feature-icon">⭐</div><div class="feature-label">Reviews</div></div>
+        <div class="feature"><div class="feature-icon">🔒</div><div class="feature-label">Secure</div></div>
+        <div class="feature"><div class="feature-icon">🔔</div><div class="feature-label">Updates</div></div>
+        <div class="feature"><div class="feature-icon">👤</div><div class="feature-label">Profile</div></div>
+    </div>
+    <div class="section-title">
+        <h3>Popular Tailors</h3>
+        <a href="#">View all</a>
+    </div>
+    <div class="tailors">
+        <div class="tailor">
+            <div class="tailor-img"></div>
+            <div class="tailor-body">
+                <h4>Bashir Tailors ✓</h4>
+                <p>Men's Wear Specialist</p>
+                <div class="rating">⭐ 4.8 (120)</div>
+                <div class="price">From ₦5,000</div>
+            </div>
+        </div>
+        <div class="tailor">
+            <div class="tailor-img" style="background:linear-gradient(135deg,#f093fb,#f5576c);"></div>
+            <div class="tailor-body">
+                <h4>Zee Stitches ✓</h4>
+                <p>Kaftans & Women's Wear</p>                <div class="rating">⭐ 4.7 (98)</div>
+                <div class="price">From ₦4,000</div>
+            </div>
+        </div>
+        <div class="tailor">
+            <div class="tailor-img" style="background:linear-gradient(135deg,#a18cd1,#fbc2eb);"></div>
+            <div class="tailor-body">
+                <h4>Aisha Designs ✓</h4>
+                <p>Women's Wear</p>
+                <div class="rating">⭐ 4.9 (115)</div>
+                <div class="price">From ₦6,000</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Profile Screen -->
+<div class="screen" id="profileScreen">
+    <div class="header">
+        <h1>My Profile</h1>
+        <div class="notif">✏️</div>
+    </div>
+    <div class="profile-card">
+        <div class="avatar"></div>
+        <h2>Musa Ibrahim</h2>
+        <p>musa.ibrahim@email.com</p>
+        <span class="location">📍 Maiduguri, Borno State</span>
+    </div>
+    <div class="stats">
+        <div class="stat"><div class="num">3</div><div class="label">Total Orders</div></div>
+        <div class="stat"><div class="num" style="color:#10b981;">1</div><div class="label">Completed</div></div>
+        <div class="stat"><div class="num">₦25k</div><div class="label">Total Spent</div></div>
+    </div>
+    <div class="menu">
+        <div class="menu-item">
+            <div class="menu-icon">📏</div>
+            <div class="menu-info"><h4>My Measurements</h4><p>Update your body measurements</p></div>
+            <span>→</span>
+        </div>
+        <div class="menu-item">
+            <div class="menu-icon">❤️</div>
+            <div class="menu-info"><h4>Saved Tailors</h4><p>3 tailors in your wishlist</p></div>
+            <span>→</span>
+        </div>
+        <div class="menu-item">
+            <div class="menu-icon">📍</div>
+            <div class="menu-info"><h4>My Addresses</h4><p>Delivery locations</p></div>
+            <span>→</span>
+        </div>
+        <div class="menu-item" onclick="logout()">            <div class="menu-icon" style="background:#fee2e2;color:#ef4444;">🚪</div>
+            <div class="menu-info"><h4 style="color:#ef4444;">Logout</h4><p>Sign out of your account</p></div>
+            <span>→</span>
+        </div>
+    </div>
+</div>
+
+<!-- Orders Screen -->
+<div class="screen" id="ordersScreen">
+    <div class="header">
+        <h1>My Orders</h1>
+        <div class="notif">⚙️</div>
+    </div>
+    <div class="order-stats">
+        <div class="order-stat"><div class="num">3</div><div class="label">Total</div></div>
+        <div class="order-stat"><div class="num" style="color:#f59e0b;">1</div><div class="label">Active</div></div>
+        <div class="order-stat"><div class="num" style="color:#10b981;">1</div><div class="label">Ready</div></div>
+        <div class="order-stat"><div class="num" style="color:#6b7280;">1</div><div class="label">Delivered</div></div>
+    </div>
+    <div class="order-card">
+        <div class="order-header">
+            <div>
+                <h4>Senator Wear</h4>
+                <p style="font-size:12px;color:#666;">Bashir Tailors</p>
+            </div>
+            <span class="status active">In Progress</span>
+        </div>
+        <div class="order-meta">Order #SL12345 • Expected: 24 May, 2024</div>
+        <div class="tracking">
+            <div class="track-step"><div class="track-dot">✓</div><label>Placed<br>Apr 30</label></div>
+            <div class="track-step"><div class="track-dot">✓</div><label>Progress<br>May 02</label></div>
+            <div class="track-step"><div class="track-dot" style="background:#e5e7eb;color:#999;">○</div><label>Ready<br>May 20</label></div>
+            <div class="track-step"><div class="track-dot" style="background:#e5e7eb;color:#999;">○</div><label>Delivered<br>May 24</label></div>
+        </div>
+        <div class="order-footer">
+            <div class="price-big">₦7,500</div>
+            <a href="#" style="color:#6C3CE1;font-size:13px;">View Details →</a>
+        </div>
+    </div>
+    <div class="order-card">
+        <div class="order-header">
+            <div>
+                <h4>Kaftan</h4>
+                <p style="font-size:12px;color:#666;">Zee Stitches</p>
+            </div>
+            <span class="status done">Delivered</span>
+        </div>
+        <div class="order-meta">Order #SL12289 • Expected: 20 Apr, 2024</div>
+        <div class="tracking">
+            <div class="track-step"><div class="track-dot">✓</div><label>Placed<br>Apr 10</label></div>            <div class="track-step"><div class="track-dot">✓</div><label>Progress<br>Apr 12</label></div>
+            <div class="track-step"><div class="track-dot">✓</div><label>Ready<br>Apr 18</label></div>
+            <div class="track-step"><div class="track-dot">✓</div><label>Delivered<br>Apr 20</label></div>
+        </div>
+        <div class="order-footer">
+            <div class="price-big">₦5,500</div>
+            <a href="#" style="color:#6C3CE1;font-size:13px;">View Details →</a>
+        </div>
+    </div>
+</div>
+
+<!-- Messages Screen -->
+<div class="screen" id="messagesScreen">
+    <div class="header">
+        <h1>Messages</h1>
+        <div class="notif">✏️</div>
+    </div>
+    <div class="search-box">
+        <span>🔍</span>
+        <input type="text" placeholder="Search conversations...">
+    </div>
+    <div class="conv">
+        <div class="conv-avatar"></div>
+        <div class="conv-info">
+            <h4>Bashir Tailors</h4>
+            <p>Your Senator wear is ready...</p>
+        </div>
+        <div>
+            <div class="conv-time">10:32 AM</div>
+            <div class="badge">2</div>
+        </div>
+    </div>
+    <div class="conv">
+        <div class="conv-avatar" style="background:linear-gradient(135deg,#f093fb,#f5576c);"></div>
+        <div class="conv-info">
+            <h4>Zee Stitches</h4>
+            <p>Please send me your measurements</p>
+        </div>
+        <div class="conv-time">Yesterday</div>
+    </div>
+    <div class="conv">
+        <div class="conv-avatar" style="background:linear-gradient(135deg,#a18cd1,#fbc2eb);"></div>
+        <div class="conv-info">
+            <h4>Aisha Designs</h4>
+            <p>Thank you for your order!</p>
+        </div>
+        <div class="conv-time">May 2</div>
+    </div>
+</div>
+<!-- Place Order Screen -->
+<div class="screen" id="placeOrderScreen">
+    <div class="header">
+        <div class="notif" onclick="nav('homeScreen')" style="cursor:pointer;">←</div>
+        <h1 style="flex:1;text-align:center;margin-right:40px;">Place New Order</h1>
+    </div>
+    <div class="progress">
+        <div class="step active" id="step1"><div class="step-circle">1</div><label>Design</label></div>
+        <div class="step" id="step2"><div class="step-circle">2</div><label>Measure</label></div>
+        <div class="step" id="step3"><div class="step-circle">3</div><label>Details</label></div>
+        <div class="step" id="step4"><div class="step-circle">4</div><label>Review</label></div>
+    </div>
+    <div class="form-content" id="formStep1">
+        <h2 style="margin-bottom:5px;">Design Inspiration</h2>
+        <p style="color:#666;font-size:13px;margin-bottom:20px;">Tell your tailor about the design</p>
+        <div class="upload-zone">
+            <div class="upload-icon">☁️</div>
+            <h4 style="color:#6C3CE1;margin-bottom:5px;">Upload Image</h4>
+            <p style="font-size:12px;color:#999;">PNG, JPG up to 10MB</p>
+        </div>
+        <h4 style="margin-bottom:10px;">Design Description</h4>
+        <textarea class="textarea" placeholder="Describe the design you want..."></textarea>
+    </div>
+    <div class="form-content hidden" id="formStep2">
+        <h2 style="margin-bottom:5px;">Measurements</h2>
+        <p style="color:#666;font-size:13px;margin-bottom:20px;">Add your body measurements</p>
+        <input type="number" class="input" placeholder="Chest (inches)">
+        <input type="number" class="input" placeholder="Waist (inches)">
+        <input type="number" class="input" placeholder="Hips (inches)">
+        <input type="number" class="input" placeholder="Shoulder (inches)">
+    </div>
+    <div class="form-content hidden" id="formStep3">
+        <h2 style="margin-bottom:5px;">Order Details</h2>
+        <p style="color:#666;font-size:13px;margin-bottom:20px;">Fill in the details</p>
+        <select class="input">
+            <option>Select clothing type</option>
+            <option>Senator Wear</option>
+            <option>Kaftan</option>
+            <option>Suit</option>
+        </select>
+        <select class="input">
+            <option>Select fabric</option>
+            <option>Cotton</option>
+            <option>Silk</option>
+            <option>Linen</option>
+        </select>
+        <input type="date" class="input">
+    </div>
+    <div class="form-content hidden" id="formStep4">
+        <h2 style="margin-bottom:5px;">Review Order</h2>        <p style="color:#666;font-size:13px;margin-bottom:20px;">Confirm your details</p>
+        <div class="menu">
+            <div class="menu-item"><div class="menu-icon">📷</div><div class="menu-info"><h4>Design Image</h4><p>1 image uploaded</p></div><span style="color:#10b981;">✓</span></div>
+            <div class="menu-item"><div class="menu-icon">📏</div><div class="menu-info"><h4>Measurements</h4><p>Chest: 40" • Waist: 34"</p></div><span style="color:#10b981;">✓</span></div>
+            <div class="menu-item"><div class="menu-icon">👔</div><div class="menu-info"><h4>Type</h4><p>Senator Wear</p></div><span style="color:#10b981;">✓</span></div>
+        </div>
+    </div>
+    <div class="fixed-btn">
+        <button onclick="nextStep()" id="continueBtn">Continue</button>
+    </div>
+</div>
+
+<!-- Bottom Navigation -->
+<div class="bottom-nav hidden" id="bottomNav">
+    <div class="nav-item active" onclick="nav('homeScreen')" data-screen="homeScreen">
+        <i>🏠</i><span>Home</span>
+    </div>
+    <div class="nav-item" onclick="nav('ordersScreen')" data-screen="ordersScreen">
+        <i>📋</i><span>Orders</span>
+    </div>
+    <div class="nav-center" onclick="nav('placeOrderScreen')">+</div>
+    <div class="nav-item" onclick="nav('messagesScreen')" data-screen="messagesScreen">
+        <i>💬</i><span>Messages</span>
+    </div>
+    <div class="nav-item" onclick="nav('profileScreen')" data-screen="profileScreen">
+        <i>👤</i><span>Profile</span>
+    </div>
+</div>
+
+<script>
+    // Hide loading
+    setTimeout(() => { document.getElementById('loading').style.display = 'none'; }, 800);
+    
+    // Check login
+    if (localStorage.getItem('loggedIn')) { showApp(); }
+    
+    function login() {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        if (!email || !password) { alert('Please fill in all fields'); return; }
+        localStorage.setItem('loggedIn', 'true');
+        showApp();
+    }
+    
+    function showApp() {
+        document.getElementById('loginScreen').classList.remove('active');
+        document.getElementById('bottomNav').classList.remove('hidden');
+        nav('homeScreen');
+    }
+        function nav(screen) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screen).classList.add('active');
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        const navItem = document.querySelector(`[data-screen="${screen}"]`);
+        if (navItem) navItem.classList.add('active');
+        window.scrollTo(0, 0);
+    }
+    
+    let currentStep = 1;
+    function nextStep() {
+        if (currentStep < 4) {
+            document.getElementById(`step${currentStep}`).classList.remove('active');
+            document.getElementById(`formStep${currentStep}`).classList.add('hidden');
+            currentStep++;
+            document.getElementById(`step${currentStep}`).classList.add('active');
+            document.getElementById(`formStep${currentStep}`).classList.remove('hidden');
+            document.getElementById('continueBtn').textContent = currentStep === 4 ? 'Place Order' : 'Continue';
+        } else {
+            alert('Order placed successfully! 🎉');
+            nav('ordersScreen');
+            currentStep = 1;
+            document.getElementById('continueBtn').textContent = 'Continue';
+        }
+    }
+    
+    function logout() {
+        localStorage.removeItem('loggedIn');
+        location.reload();
+    }
+    
+    function showToast(msg) { alert(msg); }
+</script>
+
+</body>
+</html>
