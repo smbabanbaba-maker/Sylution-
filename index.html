@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="ha">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SYLUTION - Home</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f5f5f5;
+            padding-bottom: 80px;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #e63946 0%, #4caf50 100%);
+            padding: 15px 20px;
+            padding-top: 45px;
+            color: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo {
+            width: 40px;
+            height: 40px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;            justify-content: center;
+            font-weight: bold;
+            color: #e63946;
+            font-size: 20px;
+        }
+
+        .brand-name h1 {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .brand-name p {
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .header-icons {
+            display: flex;
+            gap: 15px;
+        }
+
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .notification-badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            background: #ff0000;
+            color: white;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Search Bar */
+        .search-container {            background: white;
+            border-radius: 12px;
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .search-container input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .search-container input::placeholder {
+            color: #999;
+        }
+
+        .lang-selector {
+            padding: 5px 10px;
+            background: #f0f0f0;
+            border-radius: 8px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        /* Weather Section */
+        .weather-section {
+            background: white;
+            margin: 15px 20px;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+
+        .weather-main {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .weather-icon {
+            font-size: 48px;
+        }
+
+        .weather-info h2 {            font-size: 36px;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .weather-info p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .weather-forecast {
+            display: flex;
+            justify-content: space-between;
+            padding-top: 15px;
+            border-top: 1px solid #f0f0f0;
+        }
+
+        .forecast-day {
+            text-align: center;
+        }
+
+        .forecast-day .day {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .forecast-day .icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .forecast-day .temp {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        /* Banner */
+        .banner {
+            margin: 15px 20px;
+            border-radius: 16px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+
+        .banner img {
+            width: 100%;
+            height: 180px;            object-fit: cover;
+        }
+
+        .banner-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 20px;
+            background: linear-gradient(to bottom, rgba(0,0,0,0.6), transparent);
+            color: white;
+        }
+
+        .banner-badge {
+            display: inline-block;
+            background: #ff4757;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .banner h3 {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .banner p {
+            font-size: 14px;
+            margin-bottom: 15px;
+            opacity: 0.9;
+        }
+
+        .banner-btn {
+            background: white;
+            color: #e63946;
+            padding: 10px 25px;
+            border: none;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;            margin: 15px 20px;
+        }
+
+        .action-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px 15px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .action-card:active {
+            transform: scale(0.95);
+        }
+
+        .action-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #ffe5e5 0%, #e5f5e5 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-size: 24px;
+        }
+
+        .action-card span {
+            font-size: 13px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        /* Recommended Section */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 20px 15px;
+        }
+
+        .section-header h3 {
+            font-size: 18px;
+            color: #333;
+        }
+
+        .see-all {
+            color: #e63946;            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .products-horizontal {
+            display: flex;
+            gap: 15px;
+            overflow-x: auto;
+            padding: 0 20px;
+            scrollbar-width: none;
+        }
+
+        .products-horizontal::-webkit-scrollbar {
+            display: none;
+        }
+
+        .product-card {
+            min-width: 160px;
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+        }
+
+        .product-image {
+            width: 100%;
+            height: 140px;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+        }
+
+        .product-info {
+            padding: 12px;
+        }
+
+        .product-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .product-location {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 8px;        }
+
+        .product-price {
+            font-size: 16px;
+            font-weight: 700;
+            color: #4caf50;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            padding: 10px 20px;
+            padding-bottom: 25px;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            color: #999;
+            transition: color 0.3s;
+        }
+
+        .nav-item.active {
+            color: #e63946;
+        }
+
+        .nav-item i {
+            font-size: 22px;
+        }
+
+        .nav-item span {
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .nav-item.sell {
+            background: linear-gradient(135deg, #e63946 0%, #4caf50 100%);
+            color: white;            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            justify-content: center;
+            margin-top: -20px;
+            box-shadow: 0 4px 15px rgba(230, 57, 70, 0.4);
+        }
+
+        .nav-item.sell i {
+            font-size: 28px;
+        }
+
+        .nav-item.sell span {
+            display: none;
+        }
+
+        .message-badge {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: #ff0000;
+            color: white;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Responsive */
+        @media (min-width: 768px) {
+            body {
+                max-width: 480px;
+                margin: 0 auto;
+                border-left: 1px solid #e0e0e0;
+                border-right: 1px solid #e0e0e0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="header-top">
+            <div class="logo-section">
+                <div class="logo">S</div>
+                <div class="brand-name">                    <h1>SYLUTION</h1>
+                    <p>Kasuwa da Kiwo</p>
+                </div>
+            </div>
+            <div class="header-icons">
+                <div class="icon-btn">
+                    <i class="fas fa-qrcode"></i>
+                </div>
+                <div class="icon-btn">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge">3</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="search-container">
+            <i class="fas fa-search" style="color: #999;"></i>
+            <input type="text" placeholder="What are you looking for?">
+            <div class="lang-selector">🇳</div>
+        </div>
+    </div>
+
+    <!-- Weather Section -->
+    <div class="weather-section">
+        <div class="weather-main">
+            <div class="weather-icon">☀️</div>
+            <div class="weather-info">
+                <h2>32°C</h2>
+                <p>Kano, Nigeria</p>
+            </div>
+        </div>
+        <div class="weather-forecast">
+            <div class="forecast-day">
+                <div class="day">Mon</div>
+                <div class="icon">☀️</div>
+                <div class="temp">31°</div>
+            </div>
+            <div class="forecast-day">
+                <div class="day">Tue</div>
+                <div class="icon">🌧️</div>
+                <div class="temp">28°</div>
+            </div>
+            <div class="forecast-day">
+                <div class="day">Wed</div>
+                <div class="icon">☁️</div>
+                <div class="temp">29°</div>
+            </div>
+            <div class="forecast-day">
+                <div class="day">Thu</div>                <div class="icon">☀️</div>
+                <div class="temp">33°</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Banner -->
+    <div class="banner">
+        <img src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=800&h=400&fit=crop" alt="Farm">
+        <div class="banner-content">
+            <span class="banner-badge">🔥 SPECIAL OFFER</span>
+            <h3>SYLUTION Agro Sale</h3>
+            <p>Discount har zuwa 30% akan kayan noma</p>
+            <button class="banner-btn">Shop Now</button>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+        <div class="action-card">
+            <div class="action-icon">👥</div>
+            <span>Community</span>
+        </div>
+        <div class="action-card">
+            <div class="action-icon">💼</div>
+            <span>AgroJobs</span>
+        </div>
+        <div class="action-card">
+            <div class="action-icon">🏷️</div>
+            <span>How to Sell</span>
+        </div>
+    </div>
+
+    <!-- Recommended Section -->
+    <div class="section-header">
+        <h3>Recommended for You</h3>
+        <span class="see-all">See all</span>
+    </div>
+
+    <div class="products-horizontal">
+        <div class="product-card">
+            <div class="product-image">🐷</div>
+            <div class="product-info">
+                <div class="product-name">Alade (Pig)</div>
+                <div class="product-location">📍 Kano</div>
+                <div class="product-price">₦45,000</div>
+            </div>
+        </div>
+        <div class="product-card">
+            <div class="product-image">🐔</div>            <div class="product-info">
+                <div class="product-name">Kaji (Chicken)</div>
+                <div class="product-location">📍 Sokoto</div>
+                <div class="product-price">₦5,000</div>
+            </div>
+        </div>
+        <div class="product-card">
+            <div class="product-image">🌾</div>
+            <div class="product-info">
+                <div class="product-name">Gero (Millet)</div>
+                <div class="product-location">📍 Katsina</div>
+                <div class="product-price">₦28,000</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <div class="bottom-nav">
+        <div class="nav-item active">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </div>
+        <div class="nav-item">
+            <i class="fas fa-th-large"></i>
+            <span>Catego...</span>
+        </div>
+        <div class="nav-item sell">
+            <i class="fas fa-plus"></i>
+        </div>
+        <div class="nav-item" style="position: relative;">
+            <i class="fas fa-comment"></i>
+            <span>Messa...</span>
+            <span class="message-badge">2</span>
+        </div>
+        <div class="nav-item">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+        </div>
+        <div class="nav-item">
+            <i class="fas fa-wallet"></i>
+            <span>Wallet</span>
+        </div>
+    </div>
+
+    <script>
+        // Navigation click handlers
+        document.querySelectorAll('.nav-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+                if (!this.classList.contains('sell')) {                    this.classList.add('active');
+                }
+            });
+        });
+
+        // Search functionality
+        document.querySelector('.search-container input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                alert('Searching for: ' + this.value);
+            }
+        });
+
+        // Action cards
+        document.querySelectorAll('.action-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const action = this.querySelector('span').textContent;
+                alert('Opening ' + action);
+            });
+        });
+
+        // Product cards
+        document.querySelectorAll('.product-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const productName = this.querySelector('.product-name').textContent;
+                alert('Viewing: ' + productName);
+            });
+        });
+
+        // Banner button
+        document.querySelector('.banner-btn').addEventListener('click', function() {
+            alert('Opening shop...');
+        });
+    </script>
+</body>
+</html>
